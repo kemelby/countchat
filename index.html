@@ -214,16 +214,19 @@
 
     /* Login Screen (hidden by default) */
     #loginScreen {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        z-index: 100;
-        display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
+#loginScreen {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: none; /* hidden by default */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
     }
     #loginScreen.show {
         display: flex !important;
@@ -332,8 +335,10 @@
       const avatarInput = document.getElementById("avatarPicker").value.trim() || "😀";
       if (!nameInput) {
         alert("Please enter a nickname to join the game.");
+        loginScreenEl.style.display = "flex";
         return;
       }
+      loginScreenEl.style.display = "none";
       nickname = nameInput;
       avatar = avatarInput;
       localStorage.setItem('nickname', nickname);
@@ -475,7 +480,7 @@
     if (nickname) {
       startGame();
     } else {
-      loginScreenEl.classList.add("show");
+      loginScreenEl.style.display = "flex";
     }
   </script>
 </body>
