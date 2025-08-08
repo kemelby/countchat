@@ -178,7 +178,7 @@
       font-family: 'Poppins', sans-serif;
       font-weight: 500;
       outline: none;
-      -moz-appearance: textfield; /* Firefox */
+      -moz-appearance: textfield;
     }
     #inputNumber::placeholder {
       color: var(--text-secondary);
@@ -212,14 +212,14 @@
       height: 24px;
     }
 
-    /* Login Screen (hidden by default) */
+    /* Login Screen */
     #loginScreen {
         position: absolute;
         inset: 0;
         background-color: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         z-index: 100;
-        display: none; /* hidden by default */
+        display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -243,7 +243,7 @@
         border: 1px solid var(--border-color);
         font-size: 1rem;
     }
-     #loginScreen button {
+    #loginScreen button {
         padding: 0.8rem 1.5rem;
         border: none;
         border-radius: 24px;
@@ -268,7 +268,6 @@
   </style>
 </head>
 <body>
-
   <div class="phone-screen">
     <header>
       <div class="app-icon">🌎 💬</div>
@@ -300,18 +299,17 @@
   </div>
 
   <script>
-    // This script now waits for the DOM to be fully loaded before running.
-
+    // Replace with your actual Firebase configuration
     const firebaseConfig = {
-      // Your config here
-      apiKey: "AIzaSyCz07XpZ81eZEutt8qiZzQBdopsgnLW2_g",
-      authDomain: "counting-game-website.firebaseapp.com",
-      databaseURL: "https://counting-game-website-default-rtdb.firebaseio.com",
-      projectId: "counting-game-website",
-      storageBucket: "counting-game-website.firebasestorage.app",
-      messagingSenderId: "417212364945",
-      appId: "1:417212364945:web:4870c79b86045b4c5ba730",
-      measurementId: "G-PWMEBW1T86"
+      // Your Firebase configuration object here
+      // e.g., apiKey: "your-api-key",
+      // authDomain: "your-auth-domain",
+      // databaseURL: "your-database-url",
+      // projectId: "your-project-id",
+      // storageBucket: "your-storage-bucket",
+      // messagingSenderId: "your-sender-id",
+      // appId: "your-app-id",
+      // measurementId: "your-measurement-id"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -322,7 +320,7 @@
     let avatar = localStorage.getItem('avatar') || "😀";
     let highScore = 0;
     let playerCount = 0;
-    let currentNumber = 0; // Keep local track for the header
+    let currentNumber = 0;
 
     const chatEl = document.getElementById("chat");
     const inputEl = document.getElementById("inputNumber");
@@ -332,62 +330,55 @@
     const avatarPickerEl = document.getElementById("avatarPicker");
 
     function startGame() {
+      console.log('startGame triggered');
       const nameInput = nicknameInputEl.value.trim();
       const avatarInput = avatarPickerEl.value.trim() || "😀";
-
       if (!nameInput) {
         alert("Please enter a nickname to join the game.");
         return;
       }
-      
       loginScreenEl.classList.remove("show");
-
       nickname = nameInput;
       avatar = avatarInput;
       localStorage.setItem('nickname', nickname);
       localStorage.setItem('avatar', avatar);
-
       nicknameInputEl.value = nickname;
       avatarPickerEl.value = avatar;
-
       auth.onAuthStateChanged(user => {
+        console.log('Auth state:', user ? user.uid : 'No user');
         if (!user) {
-            auth.signInAnonymously().catch(err => console.error("Anonymous sign-in failed:", err));
+          auth.signInAnonymously().catch(err => console.error("Anonymous sign-in failed:", err));
         } else {
-            // Once we have an authenticated user, set up their presence.
-            setupPresence(user.uid);
+          setupPresence(user.uid);
+          listenDatabase();
         }
       });
-      
-      listenDatabase();
     }
-    
+
     function vibrate(ms) {
       if (navigator.vibrate) navigator.vibrate(ms);
     }
-    
+
     function playSound(id) {
-      // Sound logic here
+      // Sound logic (placeholder)
     }
 
     function setupPresence(userUid) {
-        if (!userUid) return;
-        const connectedRef = db.ref(".info/connected");
-        const presenceRef = db.ref(`presence/${userUid}`);
-
-        connectedRef.on("value", (snap) => {
-            if (snap.val() === true) {
-                presenceRef.set({ username: nickname, avatar: avatar });
-                presenceRef.onDisconnect().remove();
-            }
-        });
-
-        db.ref("presence").on("value", (snapshot) => {
-            playerCount = snapshot.numChildren();
-            updateHeader();
-        });
+      if (!userUid) return;
+      const connectedRef = db.ref(".info/connected");
+      const presenceRef = db.ref(`presence/${userUid}`);
+      connectedRef.on("value", snap => {
+        if (snap.val() === true) {
+          presenceRef.set({ username: nickname, avatar: avatar });
+          presenceRef.onDisconnect().remove();
+        }
+      });
+      db.ref("presence").on("value", snapshot => {
+        playerCount = snapshot.numChildren();
+        updateHeader();
+      });
     }
-    
+
     function updateHeader() {
       gameStatsEl.textContent = `HIGH SCORE: ${highScore} | PLAYERS: ${playerCount}/100`;
     }
@@ -409,90 +400,77 @@
       if (!nickname) return;
       const val = parseInt(inputEl.value);
       if (isNaN(val)) return;
-
       db.ref("game").once("value").then(snap => {
         const gameData = snap.val() || { currentNumber: 0, lastUser: null };
         const currentNum = gameData.currentNumber;
-
         if (val !== currentNum + 1) {
           return resetGame(`${nickname} entered ${val} instead of ${currentNum + 1}`);
         }
-        
         if (gameData.lastUser === nickname) {
           return resetGame(`${nickname} went twice in a row`);
         }
-
         const entry = {
           user: nickname,
           avatar: avatar,
           number: val,
           time: firebase.database.ServerValue.TIMESTAMP
         };
-
         db.ref("game").update({ currentNumber: val, lastUser: nickname });
         db.ref("game/history").push(entry);
-
         db.ref('game/highScore').transaction(currentHighScore => {
-            return val > (currentHighScore || 0) ? val : currentHighScore;
+          return val > (currentHighScore || 0) ? val : currentHighScore;
         });
-
         playSound("successSound");
         vibrate(100);
         inputEl.value = '';
       }).catch(err => console.error("Submission failed:", err));
     }
-    
-    inputEl.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        submit();
-      }
+
+    inputEl.addEventListener('keydown', event => {
+      if (event.key === 'Enter') submit();
     });
 
     let hasInitialized = false;
     function listenDatabase() {
-        if(hasInitialized) return;
-        hasInitialized = true;
-
-        db.ref("game/history").limitToLast(100).on("value", snap => {
-            const history = snap.val() || {};
-            chatEl.innerHTML = Object.values(history).map(entry => {
-                if (entry.system) {
-                    return `<div class="message system">${entry.message}</div>`;
-                }
-                const isMine = entry.user === nickname;
-                const userIdentifier = entry.avatar ? `<span class="avatar">${entry.avatar}</span> ${entry.user}` : entry.user;
-                if (isMine) {
-                    return `<div class="message mine"><div class="message-content">${entry.number}</div></div>`;
-                } else {
-                    return `<div class="message theirs"><div class="message-content"><span class="user-info">${userIdentifier}</span> <span class="number">${entry.number}</span></div></div>`;
-                }
-            }).join("");
-            chatEl.scrollTop = chatEl.scrollHeight;
-        });
-
-        db.ref("game/currentNumber").on("value", snap => {
-            currentNumber = snap.val() || 0;
-            updateHeader();
-        });
-
-        db.ref("game/highScore").on("value", snap => {
-            highScore = snap.val() || 0;
-            updateHeader();
-        });
+      if (hasInitialized) return;
+      hasInitialized = true;
+      console.log('Setting up Firebase listeners');
+      db.ref("game/history").limitToLast(100).on("value", snap => {
+        const history = snap.val() || {};
+        chatEl.innerHTML = Object.values(history).map(entry => {
+          if (entry.system) {
+            return `<div class="message system">${entry.message}</div>`;
+          }
+          const isMine = entry.user === nickname;
+          const userIdentifier = entry.avatar ? `<span class="avatar">${entry.avatar}</span> ${entry.user}` : entry.user;
+          if (isMine) {
+            return `<div class="message mine"><div class="message-content">${entry.number}</div></div>`;
+          } else {
+            return `<div class="message theirs"><div class="message-content"><span class="user-info">${userIdentifier}</span> <span class="number">${entry.number}</span></div></div>`;
+          }
+        }).join("");
+        chatEl.scrollTop = chatEl.scrollHeight;
+      });
+      db.ref("game/currentNumber").on("value", snap => {
+        currentNumber = snap.val() || 0;
+        updateHeader();
+      });
+      db.ref("game/highScore").on("value", snap => {
+        highScore = snap.val() || 0;
+        updateHeader();
+      });
     }
 
-    // FIX: Main execution logic is wrapped in a function.
     function main() {
-        // Initial check for existing user
-        if (nickname) {
-            startGame();
-        } else {
-            // Use classList to show the login screen.
-            loginScreenEl.classList.add("show");
-        }
+      console.log('DOM loaded, running main()');
+      document.getElementById('loginScreen').querySelector('button').addEventListener('click', startGame);
+      if (nickname) {
+        startGame();
+      } else {
+        loginScreenEl.classList.add("show");
+      }
     }
 
-    // FIX: We wait for the DOM to be fully loaded before running our script's logic.
     document.addEventListener('DOMContentLoaded', main);
   </script>
 </body>
