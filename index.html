@@ -12,12 +12,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <style>
+    /* Your existing CSS unchanged */
     :root {
       --primary-purple: #6a35ff;
       --light-gray-bg: #f0f0f5;
@@ -27,7 +27,6 @@
       --text-secondary: #8a8a8a;
       --border-color: #e3e3e3;
     }
-
     body {
       margin: 0;
       font-family: 'Poppins', 'Segoe UI', sans-serif;
@@ -38,7 +37,6 @@
       min-height: 100vh;
       color: var(--text-dark);
     }
-
     .phone-screen {
       width: 100%;
       max-width: 420px;
@@ -52,20 +50,17 @@
       overflow: hidden;
       position: relative;
     }
-
     /* --- Header --- */
     header {
       padding: 1.5rem 1.5rem 1rem 1.5rem;
       text-align: center;
       border-bottom: 1px solid var(--border-color);
     }
-
     .app-icon {
       font-size: 2.5rem;
       color: var(--primary-purple);
       margin: 0;
     }
-
     .app-title {
       font-size: 2rem;
       font-weight: 700;
@@ -76,7 +71,6 @@
       background-clip: text;
       color: transparent;
     }
-
     .game-stats {
       font-size: 0.8rem;
       font-weight: 600;
@@ -84,7 +78,6 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-
     /* --- Chat Area --- */
     #chat {
       flex-grow: 1;
@@ -94,14 +87,12 @@
       flex-direction: column;
       gap: 1rem;
     }
-    
     .message {
       display: flex;
       max-width: 80%;
       position: relative;
       animation: fadeIn 0.3s ease-out;
     }
-
     .message-content {
       padding: 0.6rem 1rem;
       border-radius: 18px;
@@ -110,7 +101,6 @@
       gap: 0.5rem;
       font-weight: 600;
     }
-
     .theirs {
       align-self: flex-start;
     }
@@ -120,20 +110,18 @@
       border-bottom-left-radius: 4px;
     }
     .theirs .message-content .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 14px;
-        background-color: #fff;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 14px;
+      background-color: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .theirs .message-content .number {
-        font-size: 1.2rem;
-        font-weight: 700;
+      font-size: 1.2rem;
+      font-weight: 700;
     }
-
-
     .mine {
       align-self: flex-end;
     }
@@ -144,7 +132,6 @@
       font-size: 1.5rem;
       padding: 0.75rem 1.25rem;
     }
-
     .system {
       align-self: center;
       font-size: 0.8rem;
@@ -155,11 +142,9 @@
       max-width: 90%;
       text-align: center;
     }
-    
     .avatar {
-        font-size: 1rem;
+      font-size: 1rem;
     }
-
     /* --- Input Area --- */
     .input-area {
       display: flex;
@@ -169,7 +154,6 @@
       border-top: 1px solid var(--border-color);
       background-color: #fff;
     }
-
     #inputNumber {
       flex-grow: 1;
       border: 1px solid var(--border-color);
@@ -190,7 +174,6 @@
       -webkit-appearance: none;
       margin: 0;
     }
-
     #send-btn {
       display: flex;
       justify-content: center;
@@ -213,48 +196,45 @@
       width: 24px;
       height: 24px;
     }
-
     /* Login Screen (kept for functionality but hidden) */
     #loginScreen {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        z-index: 100;
-        display: none; /* Changed from flex to none */
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none; /* Changed from flex to none */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
     }
     #loginScreen .card {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        text-align: center;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+      text-align: center;
     }
     #loginScreen input {
-        width: 80%;
-        padding: 0.8rem;
-        margin: 0.5rem 0;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        font-size: 1rem;
+      width: 80%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      font-size: 1rem;
     }
-     #loginScreen button {
-        padding: 0.8rem 1.5rem;
-        border: none;
-        border-radius: 24px;
-        background: var(--primary-purple);
-        color: white;
-        font-weight: bold;
-        font-size: 1rem;
-        cursor: pointer;
-        margin-top: 1rem;
+    #loginScreen button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 24px;
+      background: var(--primary-purple);
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
     }
-
-
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -273,53 +253,55 @@
     <header>
       <div class="app-icon">🌎 💬</div>
       <h1 class="app-title">CountChat</h1>
-      <div class="game-stats" id="gameStats">HIGH SCORE: 0 | PLAYER: 0/100</div>
+      <div class="game-stats" id="gameStats">HIGH SCORE: 0 | PLAYERS: 0/100</div>
     </header>
 
-    <div id="chat">
-        </div>
+    <div id="chat"></div>
 
     <div class="input-area">
       <input id="inputNumber" type="number" placeholder="Enter the next number..." />
       <button id="send-btn" onclick="submit()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-        </svg>          
+          <path
+            d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"
+          />
+        </svg>
       </button>
     </div>
-    
+
     <div id="loginScreen">
       <div class="card">
         <h2>👋 Welcome to CountChat</h2>
         <p>Choose an emoji avatar:</p>
-        <input id="avatarPicker" maxlength="2" value="😀">
+        <input id="avatarPicker" maxlength="2" value="😀" />
         <p>Enter your nickname:</p>
-        <input id="nicknameInput" placeholder="Lissy Lissner">
+        <input id="nicknameInput" placeholder="Lissy Lissner" />
         <button onclick="startGame()">Join Game</button>
       </div>
     </div>
   </div>
 
   <script>
-    
     const firebaseConfig = {
-apiKey: "AIzaSyCz07XpZ81eZEutt8qiZzQBdopsgnLW2_g",
-authDomain: "counting-game-website.firebaseapp.com",
-databaseURL: "https://counting-game-website-default-rtdb.firebaseio.com",
-projectId: "counting-game-website",
-storageBucket: "counting-game-website.firebasestorage.app",
-messagingSenderId: "417212364945",
-appId: "1: 417212364945:web:4870c79b86045b4c5ba730",
-measurementId: "G-PWMEBW1T86"
+      apiKey: "AIzaSyCz07XpZ81eZEutt8qiZzQBdopsgnLW2_g",
+      authDomain: "counting-game-website.firebaseapp.com",
+      databaseURL: "https://counting-game-website-default-rtdb.firebaseio.com",
+      projectId: "counting-game-website",
+      storageBucket: "counting-game-website.firebasestorage.app",
+      messagingSenderId: "417212364945",
+      appId: "1:417212364945:web:4870c79b86045b4c5ba730",
+      measurementId: "G-PWMEBW1T86",
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
 
-    let nickname = localStorage.getItem('nickname') || null;
-    let avatar = localStorage.getItem('avatar') || "😀";
+    let nickname = localStorage.getItem("nickname") || null;
+    let avatar = localStorage.getItem("avatar") || "😀";
     let highScore = 0;
+    let playerCount = 0;
+    let currentNumber = 0;
 
     const chatEl = document.getElementById("chat");
     const inputEl = document.getElementById("inputNumber");
@@ -327,25 +309,46 @@ measurementId: "G-PWMEBW1T86"
     const loginScreenEl = document.getElementById("loginScreen");
 
     function startGame() {
-        const nameInput = document.getElementById("nicknameInput").value.trim();
-        const avatarInput = document.getElementById("avatarPicker").value.trim() || "😀";
-        if (!nameInput) {
-            alert("Please enter a nickname to join the game.");
-            return;
-        }
-        nickname = nameInput;
-        avatar = avatarInput;
-        localStorage.setItem('nickname', name);
-        localStorage.setItem('avatar', avatar);
+      const nameInput = document.getElementById("nicknameInput").value.trim();
+      const avatarInput = document.getElementById("avatarPicker").value.trim() || "😀";
+      if (!nameInput) {
+        alert("Please enter a nickname to join the game.");
+        return;
+      }
+      nickname = nameInput;
+      avatar = avatarInput;
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("avatar", avatar);
 
-        auth.onAuthStateChanged(user => {
-            if (!user) auth.signInAnonymously();
-        });
+      auth.onAuthStateChanged((user) => {
+        if (!user) auth.signInAnonymously();
+      });
 
-        loginScreenEl.style.display = "none";
-        listenDatabase();
+      setupPresence();
+
+      loginScreenEl.style.display = "none";
+      listenDatabase();
     }
-    
+
+    // Track connection status & presence in DB
+    function setupPresence() {
+      const connectedRef = db.ref(".info/connected");
+      const presenceKey = db.ref("presence").push().key;
+      const presenceRef = db.ref(`presence/${presenceKey}`);
+
+      connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+          presenceRef.set(nickname);
+          presenceRef.onDisconnect().remove();
+        }
+      });
+
+      db.ref("presence").on("value", (snapshot) => {
+        playerCount = snapshot.numChildren();
+        updateHeader(currentNumber, highScore, playerCount);
+      });
+    }
+
     function vibrate(ms) {
       if (navigator.vibrate) navigator.vibrate(ms);
     }
@@ -357,98 +360,106 @@ measurementId: "G-PWMEBW1T86"
       }
     }
 
-    function updateHeader(currentNum, hs) {
-      highScore = hs > highScore ? hs : highScore; // Ensure high score only goes up
-      gameStatsEl.textContent = `HIGH SCORE: ${highScore} | PLAYER: ${currentNum}/100`;
+    function updateHeader(currentNum, hs, playerCount) {
+      const newHighScore = Math.max(hs, currentNum);
+      gameStatsEl.textContent = `HIGH SCORE: ${newHighScore} | PLAYERS: ${playerCount}/100`;
     }
 
     function resetGame(reason) {
       const sysMsg = {
         system: true,
         message: `💥 Game reset: ${reason}`,
-        time: Date.now()
+        time: Date.now(),
       };
       db.ref("game").update({ currentNumber: 0, lastUser: null });
       db.ref("game/history").push(sysMsg);
       playSound("failSound");
       vibrate(400);
-      inputEl.value = '';
+      inputEl.value = "";
     }
 
     function submit() {
       const val = parseInt(inputEl.value);
       if (isNaN(val)) return;
 
-      db.ref("game/currentNumber").once("value").then(snap => {
-        const currentNum = snap.val() || 0;
-        if (val !== currentNum + 1) {
-          return resetGame(`${nickname} entered ${val} instead of ${currentNum + 1}`);
-        }
-        db.ref("game/lastUser").once("value").then(lastUserSnap => {
-          if (lastUserSnap.val() === nickname) {
-            return resetGame(`${nickname} went twice in a row`);
+      db.ref("game/currentNumber")
+        .once("value")
+        .then((snap) => {
+          const currentNum = snap.val() || 0;
+          if (val !== currentNum + 1) {
+            return resetGame(`${nickname} entered ${val} instead of ${currentNum + 1}`);
           }
-          const entry = {
-            user: nickname,
-            avatar: avatar,
-            number: val,
-            time: Date.now()
-          };
-          db.ref("game").update({ currentNumber: val, lastUser: nickname });
-          db.ref("game/scores/" + nickname).transaction(currentScore => (currentScore || 0) + 1);
-          db.ref("game/history").push(entry);
-          playSound("successSound");
-          vibrate(100);
-          inputEl.value = '';
+          db.ref("game/lastUser")
+            .once("value")
+            .then((lastUserSnap) => {
+              if (lastUserSnap.val() === nickname) {
+                return resetGame(`${nickname} went twice in a row`);
+              }
+              const entry = {
+                user: nickname,
+                avatar: avatar,
+                number: val,
+                time: Date.now(),
+              };
+              db.ref("game").update({ currentNumber: val, lastUser: nickname });
+              db.ref("game/scores/" + nickname).transaction((currentScore) => (currentScore || 0) + 1);
+              db.ref("game/history").push(entry);
+              playSound("successSound");
+              vibrate(100);
+              inputEl.value = "";
+            });
         });
-      });
     }
-    
-    inputEl.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-            submit();
-        }
+
+    inputEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        submit();
+      }
     });
 
     function listenDatabase() {
-      db.ref("game/history").limitToLast(100).on("value", snap => {
-        const history = snap.val() || {};
-        chatEl.innerHTML = Object.values(history).map(entry => {
-          if (entry.system) {
-            return `<div class="message system">${entry.message}</div>`;
-          }
-          const isMine = entry.user === nickname;
-          const userIdentifier = entry.avatar ? `<span class="avatar">${entry.avatar}</span> ${entry.user}` : entry.user;
+      db.ref("game/history")
+        .limitToLast(100)
+        .on("value", (snap) => {
+          const history = snap.val() || {};
+          chatEl.innerHTML = Object.values(history)
+            .map((entry) => {
+              if (entry.system) {
+                return `<div class="message system">${entry.message}</div>`;
+              }
+              const isMine = entry.user === nickname;
+              const userIdentifier = entry.avatar
+                ? `<span class="avatar">${entry.avatar}</span> ${entry.user}`
+                : entry.user;
 
-          if (isMine) {
-              return `<div class="message mine"><div class="message-content">${entry.number}</div></div>`;
-          } else {
-              return `
+              if (isMine) {
+                return `<div class="message mine"><div class="message-content">${entry.number}</div></div>`;
+              } else {
+                return `
                 <div class="message theirs">
                     <div class="message-content">
                         <span class="user-info">${userIdentifier}</span>
                         <span class="number">${entry.number}</span>
                     </div>
                 </div>`;
-          }
-        }).join("");
-        chatEl.scrollTop = chatEl.scrollHeight;
+              }
+            })
+            .join("");
+          chatEl.scrollTop = chatEl.scrollHeight;
+        });
+
+      db.ref("game/currentNumber").on("value", (snap) => {
+        currentNumber = snap.val() || 0;
+        updateHeader(currentNumber, highScore, playerCount);
       });
 
-      db.ref("game/currentNumber").on("value", snap => {
-        const num = snap.val() || 0;
-        updateHeader(num, highScore);
-      });
-
-      db.ref("game/scores").on("value", snap => {
+      db.ref("game/scores").on("value", (snap) => {
         const scores = snap.val() || {};
         const sorted = Object.values(scores).sort((a, b) => b - a);
         const topScore = sorted[0] || 0;
         if (topScore > highScore) {
-            highScore = topScore;
-            db.ref("game/currentNumber").once("value", currentNumSnap => {
-               updateHeader(currentNumSnap.val() || 0, highScore);
-            });
+          highScore = topScore;
+          updateHeader(currentNumber, highScore, playerCount);
         }
       });
     }
