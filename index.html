@@ -214,24 +214,19 @@
 
     /* Login Screen (hidden by default) */
     #loginScreen {
-#loginScreen {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  z-index: 100;
-  display: none; /* hidden by default */
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-}
-
+        position: absolute;
+        inset: 0;
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 100;
+        display: none; /* hidden by default */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
     }
     #loginScreen.show {
         display: flex !important;
-        /* For debugging, you can uncomment the next line */
-        /* border: 2px solid red; */
     }
     #loginScreen .card {
         background: #fff;
@@ -288,7 +283,7 @@
       <button id="send-btn" onclick="submit()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
           <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
-        </svg>          
+        </svg>        
       </button>
     </div>
     
@@ -306,13 +301,14 @@
 
   <script>
     const firebaseConfig = {
+      // Your config here
       apiKey: "AIzaSyCz07XpZ81eZEutt8qiZzQBdopsgnLW2_g",
       authDomain: "counting-game-website.firebaseapp.com",
       databaseURL: "https://counting-game-website-default-rtdb.firebaseio.com",
       projectId: "counting-game-website",
       storageBucket: "counting-game-website.firebasestorage.app",
       messagingSenderId: "417212364945",
-      appId: "1: 417212364945:web:4870c79b86045b4c5ba730",
+      appId: "1:417212364945:web:4870c79b86045b4c5ba730",
       measurementId: "G-PWMEBW1T86"
     };
 
@@ -324,67 +320,78 @@
     let avatar = localStorage.getItem('avatar') || "😀";
     let highScore = 0;
     let playerCount = 0;
+    let currentNumber = 0; // Keep local track for the header
 
     const chatEl = document.getElementById("chat");
     const inputEl = document.getElementById("inputNumber");
     const gameStatsEl = document.getElementById("gameStats");
     const loginScreenEl = document.getElementById("loginScreen");
+    const nicknameInputEl = document.getElementById("nicknameInput");
+    const avatarPickerEl = document.getElementById("avatarPicker");
 
     function startGame() {
-      const nameInput = document.getElementById("nicknameInput").value.trim();
-      const avatarInput = document.getElementById("avatarPicker").value.trim() || "😀";
+      const nameInput = nicknameInputEl.value.trim();
+      const avatarInput = avatarPickerEl.value.trim() || "😀";
+
       if (!nameInput) {
         alert("Please enter a nickname to join the game.");
-        loginScreenEl.style.display = "flex";
         return;
       }
-      loginScreenEl.style.display = "none";
+      loginScreenEl.classList.remove("show");
+
       nickname = nameInput;
       avatar = avatarInput;
       localStorage.setItem('nickname', nickname);
       localStorage.setItem('avatar', avatar);
 
-      auth.onAuthStateChanged(user => {
-        if (!user) auth.signInAnonymously();
-      });
+      // Set placeholder values in case fields are empty from localStorage
+      nicknameInputEl.value = nickname;
+      avatarPickerEl.value = avatar;
 
-      loginScreenEl.classList.remove("show");
+      auth.onAuthStateChanged(user => {
+        if (!user) auth.signInAnonymously().catch(err => console.error("Anonymous sign-in failed:", err));
+      });
+      
       listenDatabase();
     }
     
     function vibrate(ms) {
       if (navigator.vibrate) navigator.vibrate(ms);
     }
+    // Note: To play sounds, you'd need <audio> elements in your HTML.
+    // e.g., <audio id="failSound" src="path/to/fail.mp3"></audio>
     function playSound(id) {
-      const audio = document.getElementById(id);
-      if (audio) {
-        audio.currentTime = 0;
-        audio.play();
-      }
+      // const audio = document.getElementById(id);
+      // if (audio) {
+      //   audio.currentTime = 0;
+      //   audio.play();
+      // }
     }
 
-    // Presence tracking variables
-    const connectedRef = db.ref(".info/connected");
-    const presenceKey = db.ref("presence").push().key;
-    const presenceRef = db.ref(`presence/${presenceKey}`);
+    // Presence tracking
+    function setupPresence() {
+        const connectedRef = db.ref(".info/connected");
+        // Use auth uid for a more robust presence key
+        const userUid = auth.currentUser?.uid;
+        if (!userUid) return; // Wait for auth to be ready
 
-    connectedRef.on("value", (snap) => {
-      if (snap.val() === true) {
-        presenceRef.set({ username: nickname });
-        presenceRef.onDisconnect().remove();
-      }
-    });
+        const presenceRef = db.ref(`presence/${userUid}`);
 
-    db.ref("presence").on("value", (snapshot) => {
-      playerCount = snapshot.numChildren();
-      updateHeader(currentNumber || 0, highScore, playerCount);
-    });
+        connectedRef.on("value", (snap) => {
+            if (snap.val() === true) {
+                presenceRef.set({ username: nickname, avatar: avatar });
+                presenceRef.onDisconnect().remove();
+            }
+        });
 
-    let currentNumber = 0;
-
-    function updateHeader(currentNum, hs, playerCount) {
-      const newHighScore = Math.max(hs, currentNum);
-      gameStatsEl.textContent = `HIGH SCORE: ${newHighScore} | PLAYERS: ${playerCount}/100`;
+        db.ref("presence").on("value", (snapshot) => {
+            playerCount = snapshot.numChildren();
+            updateHeader();
+        });
+    }
+    
+    function updateHeader() {
+      gameStatsEl.textContent = `HIGH SCORE: ${highScore} | PLAYERS: ${playerCount}/100`;
     }
 
     function resetGame(reason) {
@@ -401,32 +408,41 @@
     }
 
     function submit() {
+      if (!nickname) return; // Don't allow submission if not logged in
       const val = parseInt(inputEl.value);
       if (isNaN(val)) return;
 
-      db.ref("game/currentNumber").once("value").then(snap => {
-        const currentNum = snap.val() || 0;
+      db.ref("game").once("value").then(snap => {
+        const gameData = snap.val() || { currentNumber: 0, lastUser: null };
+        const currentNum = gameData.currentNumber;
+
         if (val !== currentNum + 1) {
           return resetGame(`${nickname} entered ${val} instead of ${currentNum + 1}`);
         }
-        db.ref("game/lastUser").once("value").then(lastUserSnap => {
-          if (lastUserSnap.val() === nickname) {
-            return resetGame(`${nickname} went twice in a row`);
-          }
-          const entry = {
-            user: nickname,
-            avatar: avatar,
-            number: val,
-            time: Date.now()
-          };
-          db.ref("game").update({ currentNumber: val, lastUser: nickname });
-          db.ref("game/scores/" + nickname).transaction(currentScore => (currentScore || 0) + 1);
-          db.ref("game/history").push(entry);
-          playSound("successSound");
-          vibrate(100);
-          inputEl.value = '';
+        
+        if (gameData.lastUser === nickname) {
+          return resetGame(`${nickname} went twice in a row`);
+        }
+
+        const entry = {
+          user: nickname,
+          avatar: avatar,
+          number: val,
+          time: firebase.database.ServerValue.TIMESTAMP // Use server time for accuracy
+        };
+
+        // Update game state
+        db.ref("game").update({ currentNumber: val, lastUser: nickname });
+        db.ref("game/history").push(entry);
+
+        db.ref('game/highScore').transaction(currentHighScore => {
+            return val > (currentHighScore || 0) ? val : currentHighScore;
         });
-      });
+
+        playSound("successSound");
+        vibrate(100);
+        inputEl.value = '';
+      }).catch(err => console.error("Submission failed:", err));
     }
     
     inputEl.addEventListener('keydown', (event) => {
@@ -435,7 +451,14 @@
       }
     });
 
+    let hasInitialized = false;
     function listenDatabase() {
+        if(hasInitialized) return;
+        hasInitialized = true;
+
+        // Setup presence after we have a user
+        setupPresence();
+
       db.ref("game/history").limitToLast(100).on("value", snap => {
         const history = snap.val() || {};
         chatEl.innerHTML = Object.values(history).map(entry => {
@@ -462,17 +485,12 @@
 
       db.ref("game/currentNumber").on("value", snap => {
         currentNumber = snap.val() || 0;
-        updateHeader(currentNumber, highScore, playerCount);
+        updateHeader();
       });
 
-      db.ref("game/scores").on("value", snap => {
-        const scores = snap.val() || {};
-        const sorted = Object.values(scores).sort((a, b) => b - a);
-        const topScore = sorted[0] || 0;
-        if (topScore > highScore) {
-            highScore = topScore;
-            updateHeader(currentNumber, highScore, playerCount);
-        }
+      db.ref("game/highScore").on("value", snap => {
+        highScore = snap.val() || 0;
+        updateHeader();
       });
     }
 
@@ -480,7 +498,7 @@
     if (nickname) {
       startGame();
     } else {
-      loginScreenEl.style.display = "flex";
+      loginScreenEl.classList.add("show");
     }
   </script>
 </body>
