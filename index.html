@@ -52,7 +52,6 @@
       position: relative;
     }
 
-    /* --- Header --- */
     header {
       padding: 1.5rem 1.5rem 1rem 1.5rem;
       text-align: center;
@@ -84,7 +83,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* --- Chat Area --- */
     #chat {
       flex-grow: 1;
       overflow-y: auto;
@@ -119,17 +117,17 @@
       border-bottom-left-radius: 4px;
     }
     .theirs .message-content .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 14px;
-        background-color: #fff;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 14px;
+      background-color: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .theirs .message-content .number {
-        font-size: 1.2rem;
-        font-weight: 700;
+      font-size: 1.2rem;
+      font-weight: 700;
     }
 
     .mine {
@@ -155,10 +153,9 @@
     }
     
     .avatar {
-        font-size: 1rem;
+      font-size: 1rem;
     }
 
-    /* --- Input Area --- */
     .input-area {
       display: flex;
       align-items: center;
@@ -212,47 +209,46 @@
       height: 24px;
     }
 
-    /* Login Screen */
     #loginScreen {
-        position: absolute;
-        inset: 0;
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        z-index: 100;
-        display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
     }
     #loginScreen.show {
-        display: flex !important;
+      display: flex !important;
     }
     #loginScreen .card {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        text-align: center;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+      text-align: center;
     }
     #loginScreen input {
-        width: 80%;
-        padding: 0.8rem;
-        margin: 0.5rem 0;
-        border-radius: 10px;
-        border: 1px solid var(--border-color);
-        font-size: 1rem;
+      width: 80%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      font-size: 1rem;
     }
     #loginScreen button {
-        padding: 0.8rem 1.5rem;
-        border: none;
-        border-radius: 24px;
-        background: var(--primary-purple);
-        color: white;
-        font-weight: bold;
-        font-size: 1rem;
-        cursor: pointer;
-        margin-top: 1rem;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 24px;
+      background: var(--primary-purple);
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
     }
 
     @keyframes fadeIn {
@@ -299,15 +295,17 @@
   </div>
 
   <script>
-const firebaseConfig = {
-      apiKey: "AIzaSyCz07XpZ81eZEutt8qiZzQBdopsgnLW2_g",
-      authDomain: "counting-game-website.firebaseapp.com",
-      databaseURL: "https://counting-game-website-default-rtdb.firebaseio.com",
-      projectId: "counting-game-website",
-      storageBucket: "counting-game-website.firebasestorage.app",
-      messagingSenderId: "417212364945",
-      appId: "1:417212364945:web:4870c79b86045b4c5ba730",
-      measurementId: "G-PWMEBW1T86",
+    // Replace with your actual Firebase configuration
+    const firebaseConfig = {
+      // Your Firebase configuration object here
+      // e.g., apiKey: "your-api-key",
+      // authDomain: "your-auth-domain",
+      // databaseURL: "your-database-url",
+      // projectId: "your-project-id",
+      // storageBucket: "your-storage-bucket",
+      // messagingSenderId: "your-sender-id",
+      // appId: "your-app-id",
+      // measurementId: "your-measurement-id"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -326,6 +324,13 @@ const firebaseConfig = {
     const loginScreenEl = document.getElementById("loginScreen");
     const nicknameInputEl = document.getElementById("nicknameInput");
     const avatarPickerEl = document.getElementById("avatarPicker");
+
+    // Test Firebase connectivity on load
+    db.ref('test').set({ test: 'Hello' }).then(() => {
+      console.log('Firebase write successful');
+    }).catch(err => {
+      console.error('Firebase connection error:', err);
+    });
 
     function startGame() {
       console.log('startGame triggered');
@@ -382,29 +387,45 @@ const firebaseConfig = {
     }
 
     function resetGame(reason) {
+      console.log('Resetting game:', reason);
       const sysMsg = {
         system: true,
         message: `💥 Game reset: ${reason}`,
         time: firebase.database.ServerValue.TIMESTAMP
       };
-      db.ref("game").update({ currentNumber: 0, lastUser: null });
-      db.ref("game/history").push(sysMsg);
+      db.ref("game").update({ currentNumber: 0, lastUser: null })
+        .then(() => db.ref("game/history").push(sysMsg))
+        .catch(err => console.error('Reset game error:', err));
       playSound("failSound");
       vibrate(400);
       inputEl.value = '';
     }
 
     function submit() {
-      if (!nickname) return;
-      const val = parseInt(inputEl.value);
-      if (isNaN(val)) return;
+      console.log('submit triggered, nickname:', nickname, 'input:', inputEl.value);
+      if (!nickname) {
+        console.error('No nickname set, cannot submit');
+        alert('Please join the game first.');
+        loginScreenEl.classList.add("show");
+        return;
+      }
+      const val = parseInt(inputEl.value, 10);
+      if (isNaN(val) || val < 0) {
+        console.error('Invalid input:', inputEl.value);
+        alert('Please enter a valid positive number.');
+        inputEl.value = '';
+        return;
+      }
       db.ref("game").once("value").then(snap => {
+        console.log('Game state:', snap.val());
         const gameData = snap.val() || { currentNumber: 0, lastUser: null };
-        const currentNum = gameData.currentNumber;
+        const currentNum = gameData.currentNumber || 0;
         if (val !== currentNum + 1) {
+          console.log(`Invalid number: ${val}, expected: ${currentNum + 1}`);
           return resetGame(`${nickname} entered ${val} instead of ${currentNum + 1}`);
         }
         if (gameData.lastUser === nickname) {
+          console.log('User tried to go twice:', nickname);
           return resetGame(`${nickname} went twice in a row`);
         }
         const entry = {
@@ -413,18 +434,29 @@ const firebaseConfig = {
           number: val,
           time: firebase.database.ServerValue.TIMESTAMP
         };
-        db.ref("game").update({ currentNumber: val, lastUser: nickname });
-        db.ref("game/history").push(entry);
-        db.ref('game/highScore').transaction(currentHighScore => {
-          return val > (currentHighScore || 0) ? val : currentHighScore;
+        Promise.all([
+          db.ref("game").update({ currentNumber: val, lastUser: nickname }),
+          db.ref("game/history").push(entry),
+          db.ref('game/highScore').transaction(currentHighScore => {
+            return val > (currentHighScore || 0) ? val : currentHighScore;
+          })
+        ]).then(() => {
+          console.log('Number submitted successfully:', val);
+          playSound("successSound");
+          vibrate(100);
+          inputEl.value = '';
+        }).catch(err => {
+          console.error("Submission failed:", err);
+          alert('Failed to submit number. Please try again.');
         });
-        playSound("successSound");
-        vibrate(100);
-        inputEl.value = '';
-      }).catch(err => console.error("Submission failed:", err));
+      }).catch(err => {
+        console.error('Error reading game state:', err);
+        alert('Error connecting to game. Please refresh.');
+      });
     }
 
     inputEl.addEventListener('keydown', event => {
+      console.log('Keydown event:', event.key);
       if (event.key === 'Enter') submit();
     });
 
@@ -434,6 +466,7 @@ const firebaseConfig = {
       hasInitialized = true;
       console.log('Setting up Firebase listeners');
       db.ref("game/history").limitToLast(100).on("value", snap => {
+        console.log('History updated:', snap.val());
         const history = snap.val() || {};
         chatEl.innerHTML = Object.values(history).map(entry => {
           if (entry.system) {
@@ -448,15 +481,17 @@ const firebaseConfig = {
           }
         }).join("");
         chatEl.scrollTop = chatEl.scrollHeight;
-      });
+      }, err => console.error('History listener error:', err));
       db.ref("game/currentNumber").on("value", snap => {
         currentNumber = snap.val() || 0;
+        console.log('Current number updated:', currentNumber);
         updateHeader();
-      });
+      }, err => console.error('Current number listener error:', err));
       db.ref("game/highScore").on("value", snap => {
         highScore = snap.val() || 0;
+        console.log('High score updated:', highScore);
         updateHeader();
-      });
+      }, err => console.error('High score listener error:', err));
     }
 
     function main() {
