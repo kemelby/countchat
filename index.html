@@ -300,6 +300,8 @@
   </div>
 
   <script>
+    // This script now waits for the DOM to be fully loaded before running.
+
     const firebaseConfig = {
       // Your config here
       apiKey: "AIzaSyCz07XpZ81eZEutt8qiZzQBdopsgnLW2_g",
@@ -337,6 +339,7 @@
         alert("Please enter a nickname to join the game.");
         return;
       }
+      
       loginScreenEl.classList.remove("show");
 
       nickname = nameInput;
@@ -344,12 +347,16 @@
       localStorage.setItem('nickname', nickname);
       localStorage.setItem('avatar', avatar);
 
-      // Set placeholder values in case fields are empty from localStorage
       nicknameInputEl.value = nickname;
       avatarPickerEl.value = avatar;
 
       auth.onAuthStateChanged(user => {
-        if (!user) auth.signInAnonymously().catch(err => console.error("Anonymous sign-in failed:", err));
+        if (!user) {
+            auth.signInAnonymously().catch(err => console.error("Anonymous sign-in failed:", err));
+        } else {
+            // Once we have an authenticated user, set up their presence.
+            setupPresence(user.uid);
+        }
       });
       
       listenDatabase();
@@ -358,23 +365,14 @@
     function vibrate(ms) {
       if (navigator.vibrate) navigator.vibrate(ms);
     }
-    // Note: To play sounds, you'd need <audio> elements in your HTML.
-    // e.g., <audio id="failSound" src="path/to/fail.mp3"></audio>
+    
     function playSound(id) {
-      // const audio = document.getElementById(id);
-      // if (audio) {
-      //   audio.currentTime = 0;
-      //   audio.play();
-      // }
+      // Sound logic here
     }
 
-    // Presence tracking
-    function setupPresence() {
+    function setupPresence(userUid) {
+        if (!userUid) return;
         const connectedRef = db.ref(".info/connected");
-        // Use auth uid for a more robust presence key
-        const userUid = auth.currentUser?.uid;
-        if (!userUid) return; // Wait for auth to be ready
-
         const presenceRef = db.ref(`presence/${userUid}`);
 
         connectedRef.on("value", (snap) => {
@@ -398,7 +396,7 @@
       const sysMsg = {
         system: true,
         message: `💥 Game reset: ${reason}`,
-        time: Date.now()
+        time: firebase.database.ServerValue.TIMESTAMP
       };
       db.ref("game").update({ currentNumber: 0, lastUser: null });
       db.ref("game/history").push(sysMsg);
@@ -408,7 +406,7 @@
     }
 
     function submit() {
-      if (!nickname) return; // Don't allow submission if not logged in
+      if (!nickname) return;
       const val = parseInt(inputEl.value);
       if (isNaN(val)) return;
 
@@ -428,10 +426,9 @@
           user: nickname,
           avatar: avatar,
           number: val,
-          time: firebase.database.ServerValue.TIMESTAMP // Use server time for accuracy
+          time: firebase.database.ServerValue.TIMESTAMP
         };
 
-        // Update game state
         db.ref("game").update({ currentNumber: val, lastUser: nickname });
         db.ref("game/history").push(entry);
 
@@ -456,50 +453,47 @@
         if(hasInitialized) return;
         hasInitialized = true;
 
-        // Setup presence after we have a user
-        setupPresence();
+        db.ref("game/history").limitToLast(100).on("value", snap => {
+            const history = snap.val() || {};
+            chatEl.innerHTML = Object.values(history).map(entry => {
+                if (entry.system) {
+                    return `<div class="message system">${entry.message}</div>`;
+                }
+                const isMine = entry.user === nickname;
+                const userIdentifier = entry.avatar ? `<span class="avatar">${entry.avatar}</span> ${entry.user}` : entry.user;
+                if (isMine) {
+                    return `<div class="message mine"><div class="message-content">${entry.number}</div></div>`;
+                } else {
+                    return `<div class="message theirs"><div class="message-content"><span class="user-info">${userIdentifier}</span> <span class="number">${entry.number}</span></div></div>`;
+                }
+            }).join("");
+            chatEl.scrollTop = chatEl.scrollHeight;
+        });
 
-      db.ref("game/history").limitToLast(100).on("value", snap => {
-        const history = snap.val() || {};
-        chatEl.innerHTML = Object.values(history).map(entry => {
-          if (entry.system) {
-            return `<div class="message system">${entry.message}</div>`;
-          }
-          const isMine = entry.user === nickname;
-          const userIdentifier = entry.avatar ? `<span class="avatar">${entry.avatar}</span> ${entry.user}` : entry.user;
+        db.ref("game/currentNumber").on("value", snap => {
+            currentNumber = snap.val() || 0;
+            updateHeader();
+        });
 
-          if (isMine) {
-              return `<div class="message mine"><div class="message-content">${entry.number}</div></div>`;
-          } else {
-              return `
-                <div class="message theirs">
-                    <div class="message-content">
-                        <span class="user-info">${userIdentifier}</span>
-                        <span class="number">${entry.number}</span>
-                    </div>
-                </div>`;
-          }
-        }).join("");
-        chatEl.scrollTop = chatEl.scrollHeight;
-      });
-
-      db.ref("game/currentNumber").on("value", snap => {
-        currentNumber = snap.val() || 0;
-        updateHeader();
-      });
-
-      db.ref("game/highScore").on("value", snap => {
-        highScore = snap.val() || 0;
-        updateHeader();
-      });
+        db.ref("game/highScore").on("value", snap => {
+            highScore = snap.val() || 0;
+            updateHeader();
+        });
     }
 
-    // Initial check for existing user
-    if (nickname) {
-      startGame();
-    } else {
-      loginScreenEl.classList.add("show");
+    // FIX: Main execution logic is wrapped in a function.
+    function main() {
+        // Initial check for existing user
+        if (nickname) {
+            startGame();
+        } else {
+            // Use classList to show the login screen.
+            loginScreenEl.classList.add("show");
+        }
     }
+
+    // FIX: We wait for the DOM to be fully loaded before running our script's logic.
+    document.addEventListener('DOMContentLoaded', main);
   </script>
 </body>
 </html>
